@@ -1,0 +1,14 @@
+#define PI $3.14159
+#define SQR(X) $X+X
+main()
+{
+float,circulo,circunferencia,cuadrado;
+int lado = 9;
+#ifdef SQR
+circulo = PI*SQR(2.5);
+cuadrado=SQR(lado);
+#else
+circulo = PI*2.25*2.5
+cuadrado = lado*lado;
+#endif
+}
