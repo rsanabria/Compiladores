@@ -22,14 +22,14 @@ void strreplace(char *src, char *str, char *rep) ;
 void S();
 void P();
 void D();
-void B();
+int  B();
 void A();
 void I();
 void C();
 void R();
 void O();
 void T(int a);
-void K();
+void K(int a);
 void F();
 void N();
 void U();
@@ -62,7 +62,7 @@ char *atomosRelacionales[] = {">","y","<","m","s","t"};
 int getPosTokens();
 char getPosValor();
 void indicarValor(int p,int v);
-void activaConstante(int p);
+void activaConstante(int p,int arg);
 void desactivarConstante(int p);
 void codigoSustitucion (int q) ;
 int d_activarCodigo_porId(int p, int q, int act);
@@ -558,19 +558,20 @@ void P() {
 }
 
 void D() {
-    int p,v;
+    int p,v,argumento;
     printf("Estado D, Valor a analizar: %c\n",cadenaAtomos[idx_atomos]); 
     if (cadenaAtomos[idx_atomos] == 'd') {
         ++idx_atomos;
         if (cadenaAtomos[idx_atomos] == 'a') {
             p = getPosTokens();
             ++idx_atomos;
-            B();
+            argumento = B();
             if (cadenaAtomos[idx_atomos] == 'v') {
                 v = getPosTokens(); //posicion del valor de la constante
             ++idx_atomos;
                 indicarValor(p,v);
-                activaConstante(p);
+                printf("argumento: %d\n",argumento);
+                activaConstante(p,argumento);
                 return;
             } else {
                 printf("Error en D,se esperaba v, se procesó: %c\n",cadenaAtomos[idx_atomos]); 
@@ -585,10 +586,10 @@ void D() {
     
     
 }
-void B() {
+int B() {
     printf("Estado B, Valor a analizar: %c\n",cadenaAtomos[idx_atomos]); 
     if (cadenaAtomos[idx_atomos] == 'v' /*|| cadenaAtomos[idx_atomos] == '&'*/) {
-        return;
+        return 0;
     }
     else if (cadenaAtomos[idx_atomos] == '(') {
         ++idx_atomos;
@@ -597,7 +598,7 @@ void B() {
             A();
             if (cadenaAtomos[idx_atomos] == ')') {
                  ++idx_atomos;
-                return;
+                return 1;
             } else {
                printf("Error en B,se esperaba ), se procesó: %c\n",cadenaAtomos[idx_atomos]);  
             }
@@ -684,28 +685,30 @@ void T(int a){
         if (a > 0)
             d_activarCodigo(a,q);
         ++idx_atomos;
-        K();
+        K(a);
         return;
     } else if (cadenaAtomos[idx_atomos] == 'd' || cadenaAtomos[idx_atomos] == 'i' || cadenaAtomos[idx_atomos] == 'l' || cadenaAtomos[idx_atomos] == 'g' || cadenaAtomos[idx_atomos] == 'u') {
         P();
-        K();
+        K(a);
         return;
     } else {
        printf("Error en T, al procesar: %c\n",cadenaAtomos[idx_atomos]); 
     }
 }
-void K(){
+void K(int a){
     int q;
     printf("Estado K, Valor a analizar: %c\n",cadenaAtomos[idx_atomos]); 
     if (cadenaAtomos[idx_atomos] == 'q') {
         q = getPosTokens();
         codigoSustitucion(q);
+        if (a > 0)
+            d_activarCodigo(a,q);
         ++idx_atomos;
-        K();
+        K(a);
         return;
     } else if (cadenaAtomos[idx_atomos] == 'd' || cadenaAtomos[idx_atomos] == 'i' || cadenaAtomos[idx_atomos] == 'l' || cadenaAtomos[idx_atomos] == 'g' || cadenaAtomos[idx_atomos] == 'u') {
         P();
-        K();
+        K(a);
         return;
     } else if (cadenaAtomos[idx_atomos] == '&') {
        return;
@@ -836,9 +839,14 @@ void indicarValor(int p,int v) {
              strcat(identificadores_a_valor_activos[p],valor);
              //strcpy(valores_identificadores[p],valor);
 }
-void activaConstante(int p) {
+void activaConstante(int p,int arg) {
+    if (arg == 0) {
              strcat(identificadores_a_valor_activos[p], " 1");
             identificadores_activos[p] = 1;
+    } else {
+        strcat(identificadores_a_valor_activos[p], " -1");
+        identificadores_activos[p] = -1; 
+    }
 
 }
 void desactivarConstante(int p) {
@@ -850,6 +858,9 @@ void codigoSustitucion (int q) {
         int i;
         for (i=0;i < contadorId; i++) {
             if (identificadores_activos[i] == 1) {
+                strreplace(codigo_a[q],identificadores_a[i],constantes_a[i]);
+            } else if (identificadores_activos[i] == -1) {
+                //strcat(constantes_a[i],"¡");
                 strreplace(codigo_a[q],identificadores_a[i],constantes_a[i]);
             }
         }
@@ -897,7 +908,7 @@ void strreplace(char *src, char *str, char *rep) {
       if(!(ch = strstr(src, str)))
               return;
  
-      //copy todo el contenido del buffer antes de la primer ocurrencia de la busqueda
+      //copia todo el contenido al buffer antes de la primer ocurrencia de la busqueda
         strncpy(buffer, src, ch-src);
  
       //prepara el buffer para agregar, sumando un null al final

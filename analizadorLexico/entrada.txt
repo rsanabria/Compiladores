@@ -8,7 +8,7 @@ int lado = 9;
 circulo = PI*SQR(2.5);
 cuadrado=SQR(lado);
 #else
-circulo = PI*2.25*2.5
+circulo = PI*2.5*2.5
 cuadrado = lado*lado;
 #endif
 }

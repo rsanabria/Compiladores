@@ -1,5 +1,9 @@
-main(){
-    float radio=4.0, lado=7.0, areaCir, areaCua;
-    areaCir=radio*radio*3.1415;
-    areaCua=lado*lado;
+ main()
+{
+float,circulo,circunferencia,cuadrado;
+int lado = 9;
+circulo = 3.14159*X+X(2.5);
+cuadrado=X+X(lado);
+circulo = 3.14159*2.5*2.5
+cuadrado = lado*lado;
 }
