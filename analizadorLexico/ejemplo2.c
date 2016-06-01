@@ -1,5 +1,5 @@
 #define PI $3.1415
-main() {
+main(){
     float radio=4.0, lado=7.0, areaCir, areaCua;
 #ifdef PI
     areaCir=radio*radio*PI;
